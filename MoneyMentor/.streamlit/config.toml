@@ -1,4 +1,9 @@
 [server]
-headless = true
-address = "0.0.0.0"
+headless = false
+enableCORS = false
+enableXsrfProtection = false
+address = "localhost"
 port = 8501
+[browser]
+serverAddress = "localhost"
+serverPort = 8501
