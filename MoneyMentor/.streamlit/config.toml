@@ -2,8 +2,8 @@
 headless = true
 enableCORS = true
 enableXsrfProtection = true
-address = "0.0.0.0"
+address = "localhost"
 port = 8501
 [browser]
-serverAddress = "0.0.0.0"
+serverAddress = "localhost"
 serverPort = 8501
