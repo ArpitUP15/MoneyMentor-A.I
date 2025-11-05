@@ -640,10 +640,10 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         st.warning("Sentiment data unavailable for this stock")
             
             with pred_col:
-                st.subheader("AI Trend Prediction")
+                st.subheader("AI Based Analysis")
                 
                 # Get prediction data
-                with st.spinner("Generating AI predictions..."):
+                with st.spinner("Generating Analysis..."):
                     prediction = predict_trend(st.session_state.selected_stock, df)
                     
                     if prediction:
@@ -651,7 +651,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         trend_direction = "Bullish" if prediction['trend_direction'] == 'up' else "Bearish"
                         trend_color = "green" if prediction['trend_direction'] == 'up' else "red"
                         
-                        st.markdown(f"### Predicted Trend: <span style='color:{trend_color}'>{trend_direction}</span>", unsafe_allow_html=True)
+                        st.markdown(f"### Analyzed Result: <span style='color:{trend_color}'>{trend_direction}</span>", unsafe_allow_html=True)
                         
                         # Create confidence gauge
                         fig = go.Figure(go.Indicator(
@@ -689,13 +689,13 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         st.markdown(f"**High:** ${prediction['price_target_high']:.2f}")
                         
                         # Feature importance
-                        st.markdown("### Key Factors Influencing Prediction")
+                        st.markdown("### Key Factors Influencing Analysis")
                         for factor in prediction['factors'][:3]:
                             impact_color = "green" if factor['impact'] > 0 else "red"
                             impact_symbol = "↑" if factor['impact'] > 0 else "↓"
                             st.markdown(f"• {factor['name']}: <span style='color:{impact_color}'>{impact_symbol}</span>", unsafe_allow_html=True)
                     else:
-                        st.warning("Prediction data unavailable for this stock")
+                        st.warning("Analyzing data unavailable for this stock")
             
             # Buy/Sell Signal
             st.header("Trade Signal")
