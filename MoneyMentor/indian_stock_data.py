@@ -9,15 +9,20 @@ import json
 # Cache for API responses to avoid rate limiting
 cache = {}
 cache_expiry = {}
-CACHE_DURATION = 300  # 5 minutes
+CACHE_DURATION = 30  # 30 seconds for regular data
+REALTIME_CACHE_DURATION = 5  # 5 seconds for realtime data
 
 def get_from_cache_or_api(func, *args, **kwargs):
     """Get data from cache or API with caching"""
     cache_key = f"{func.__name__}_{str(args)}_{str(kwargs)}"
     current_time = time.time()
     
+    # Determine if this is a realtime request
+    use_realtime = kwargs.get('use_realtime', False)
+    cache_duration = REALTIME_CACHE_DURATION if use_realtime else CACHE_DURATION
+    
     # Return from cache if still valid
-    if cache_key in cache and cache_key in cache_expiry:
+    if not use_realtime and cache_key in cache and cache_key in cache_expiry:
         if current_time < cache_expiry[cache_key]:
             return cache[cache_key]
     
@@ -189,7 +194,7 @@ def get_indian_stock_quote(symbol, use_realtime=False):
         cache.pop(f"fetch_quote_{symbol}_{yf_symbol}", None)
         cache_expiry.pop(f"fetch_quote_{symbol}_{yf_symbol}", None)
     
-    def fetch_quote(symbol, yf_symbol):
+    def fetch_quote(symbol, yf_symbol, use_realtime=False):
         try:
             ticker = yf.Ticker(yf_symbol)
             info = ticker.info
@@ -199,29 +204,42 @@ def get_indian_stock_quote(symbol, use_realtime=False):
                 print(f"No valid info for {symbol}")
                 return None
             
-            # Get recent pricing data
-            hist = None
-            for period in ["2d", "5d", "1mo"]:
-                try:
-                    hist = ticker.history(period=period)
-                    if not hist.empty and len(hist) >= 2:
-                        break
-                except:
-                    continue
+            # Get live price data for real-time requests
+            if use_realtime:
+                # Get live price using 1m interval data
+                live_data = ticker.history(period="1d", interval="1m")
+                if not live_data.empty:
+                    current = live_data.iloc[-1]
+                    prev_close = info.get('previousClose', live_data['Close'].iloc[-2] if len(live_data) > 1 else current['Close'])
+                else:
+                    # Fallback to regular data if live fails
+                    use_realtime = False
             
-            if hist is None or hist.empty:
-                print(f"No historical data for {symbol}")
-                return None
+            # Get recent pricing data if not real-time or if real-time failed
+            if not use_realtime:
+                hist = None
+                for period in ["1d", "2d", "5d"]:
+                    try:
+                        hist = ticker.history(period=period)
+                        if not hist.empty and len(hist) >= 1:
+                            break
+                    except:
+                        continue
             
-            # Current and previous day
-            current = hist.iloc[-1]
-            prev = hist.iloc[-2] if len(hist) > 1 else current
+            if not use_realtime:
+                if hist is None or hist.empty:
+                    print(f"No historical data for {symbol}")
+                    return None
+                current = hist.iloc[-1]
+                prev_close = info.get('previousClose', float(hist.iloc[-2]['Close']) if len(hist) > 1 else float(current['Close']))
             
-            # Calculate price change
+            # Calculate price change using the most current data
             price = float(current['Close'])
-            prev_close = float(prev['Close'])
             price_change = price - prev_close
             price_change_percent = (price / prev_close - 1) * 100 if prev_close > 0 else 0
+            
+            # For real-time quotes, also include last trade time
+            last_trade_time = pd.Timestamp.now() if use_realtime else current.name
             
             # Get market cap
             market_cap = info.get('marketCap', 0)
@@ -245,7 +263,13 @@ def get_indian_stock_quote(symbol, use_realtime=False):
                 "52w_high": info.get('fiftyTwoWeekHigh', hist_52w_high),
                 "52w_low": info.get('fiftyTwoWeekLow', hist_52w_low),
                 "currency": "INR",
-                "exchange": "NSE"
+                "exchange": "NSE",
+                "last_trade_time": last_trade_time.strftime('%Y-%m-%d %H:%M:%S'),
+                "is_realtime": use_realtime,
+                "bid": info.get('bid', price),
+                "ask": info.get('ask', price),
+                "day_high": current['High'],
+                "day_low": current['Low']
             }
         except Exception as e:
             print(f"Error getting quote for {symbol}: {e}")
