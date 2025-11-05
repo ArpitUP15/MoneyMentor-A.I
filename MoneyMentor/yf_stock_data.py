@@ -139,10 +139,15 @@ def search_stocks(query):
     
     return results[:10]  # Return max 10 results
 
-def get_stock_quote(symbol):
+def get_stock_quote(symbol, use_realtime=False):
     """Get current stock quote with basic information"""
     # Use a function to get data that we can cache
-    def fetch_quote(symbol):
+    def fetch_quote(symbol, use_realtime=False):
+        # If realtime data is requested, don't use cache
+        global cache, cache_expiry
+        if use_realtime:
+            cache.pop(f"fetch_quote_{symbol}", None)
+            cache_expiry.pop(f"fetch_quote_{symbol}", None)
         try:
             ticker = yf.Ticker(symbol)
             info = ticker.info

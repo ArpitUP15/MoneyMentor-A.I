@@ -90,7 +90,7 @@ else:  # Watchlists
 # Sidebar - Search & Filter and Watchlists
 with st.sidebar:
     if st.session_state.view == 'dashboard':
-        st.header("Stock Search & Filters")
+        st.header("Stock Search")
         
         # Market selection
         st.subheader("Market Selection")
@@ -167,11 +167,19 @@ if st.session_state.view == 'watchlist':
     render_watchlist_main()
 elif st.session_state.selected_stock:  # Dashboard view with selected stock
     # Get stock data based on market selection
-    with st.spinner(f"Loading data for {st.session_state.selected_stock}..."):
-        if st.session_state.market == 'india':
-            quote = get_indian_stock_quote(st.session_state.selected_stock)
-        else:
-            quote = get_stock_quote(st.session_state.selected_stock)
+    with st.spinner(f"Loading real-time data for {st.session_state.selected_stock}..."):
+        try:
+            if st.session_state.market == 'india':
+                quote = get_indian_stock_quote(st.session_state.selected_stock, use_realtime=True)
+            else:
+                quote = get_stock_quote(st.session_state.selected_stock, use_realtime=True)
+        except Exception as e:
+            st.error(f"Error fetching real-time data: {str(e)}")
+            # Fallback to regular quotes if real-time fails
+            if st.session_state.market == 'india':
+                quote = get_indian_stock_quote(st.session_state.selected_stock)
+            else:
+                quote = get_stock_quote(st.session_state.selected_stock)
         
         # Handle case when API fails to return data
         if not quote:

@@ -174,7 +174,7 @@ def search_indian_stocks(query):
     
     return results[:20]  # Return max 20 results
 
-def get_indian_stock_quote(symbol):
+def get_indian_stock_quote(symbol, use_realtime=False):
     """Get current Indian stock quote with basic information"""
     # Get the yfinance symbol
     if symbol in INDIAN_STOCKS:
@@ -182,6 +182,12 @@ def get_indian_stock_quote(symbol):
     else:
         # Try with .NS suffix
         yf_symbol = f"{symbol}.NS"
+    
+    # If realtime data is requested, clear any cached data for this symbol
+    if use_realtime:
+        global cache, cache_expiry
+        cache.pop(f"fetch_quote_{symbol}_{yf_symbol}", None)
+        cache_expiry.pop(f"fetch_quote_{symbol}_{yf_symbol}", None)
     
     def fetch_quote(symbol, yf_symbol):
         try:
