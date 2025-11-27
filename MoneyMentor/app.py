@@ -197,7 +197,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                 price_color = "green" if price_change >= 0 else "red"
                 st.markdown(f"""
                 <div style='display: flex; align-items: baseline;'>
-                    <h2 style='margin: 0;'>${quote['price']:.2f}</h2>
+                    <h2 style='margin: 0;'>₹{quote['price']:.2f}</h2>
                     <h3 style='margin: 0 0 0 10px; color: {price_color};'>
                         {price_change:.2f} ({price_change_percent:.2f}%)
                     </h3>
@@ -206,10 +206,10 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
             
             with col2:
                 st.markdown("### Market Info")
-                st.markdown(f"**Market Cap:** ${format_large_number(quote['market_cap'])}")
+                st.markdown(f"**Market Cap:** ₹{format_large_number(quote['market_cap'])}")
                 st.markdown(f"**Volume:** {format_large_number(quote['volume'])}")
                 st.markdown(f"**P/E Ratio:** {quote.get('pe', 'N/A')}")
-                st.markdown(f"**52-Week Range:** ${quote.get('52w_low', 0):.2f} - ${quote.get('52w_high', 0):.2f}")
+                st.markdown(f"**52-Week Range:** ₹{quote.get('52w_low', 0):.2f} - ₹{quote.get('52w_high', 0):.2f}")
             
             # Chart section
             st.subheader("Price Chart")
@@ -349,7 +349,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                     fig.update_layout(
                         title=f"{quote['symbol']} - {st.session_state.interval.capitalize()} Chart",
                         xaxis_title="Date",
-                        yaxis_title="Price ($)",
+                        yaxis_title="Price (₹)",
                         height=500,
                         margin=dict(l=0, r=0, t=40, b=0),
                         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -693,8 +693,8 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         
                         # Show prediction details
                         st.markdown("### Price Target Range (7 Days)")
-                        st.markdown(f"**Low:** ${prediction['price_target_low']:.2f}")
-                        st.markdown(f"**High:** ${prediction['price_target_high']:.2f}")
+                        st.markdown(f"**Low:** ₹{prediction['price_target_low']:.2f}")
+                        st.markdown(f"**High:** ₹{prediction['price_target_high']:.2f}")
                         
                         # Feature importance
                         st.markdown("### Key Factors Influencing Analysis")
