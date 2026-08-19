@@ -1,13 +1,12 @@
-# MoneyMentor-AI
+# MoneyMentor
 
-A real-time stock analysis platform with AI-powered insights for active traders and investors.
+Full-Stack Financial Analytics & Data Dashboard
 
 ## Features
 
 - **Real-time Stock Data**: Get live data from Yahoo Finance
 - **Technical Analysis**: Calculate key indicators like RSI, MACD, and Bollinger Bands
 - **Stock Watchlists**: Create and manage watchlists of your favorite stocks
-- **AI Predictions**: Get AI-powered trend predictions and trading signals
 - **Sentiment Analysis**: Analyze news sentiment for stocks
 
 ## Installation
