@@ -1,0 +1,4 @@
+.venv
+.local
+.replit
+__pycache__
