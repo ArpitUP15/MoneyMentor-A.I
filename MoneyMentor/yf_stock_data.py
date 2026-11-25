@@ -23,9 +23,9 @@ def get_from_cache_or_api(func, *args, **kwargs):
     try:
         data = func(*args, **kwargs)
         
-        # Cache the response
-        cache[cache_key] = data
-        cache_expiry[cache_key] = current_time + CACHE_DURATION
+        if data is not None:
+            cache[cache_key] = data
+            cache_expiry[cache_key] = current_time + CACHE_DURATION
         
         return data
     except Exception as e:
@@ -142,12 +142,7 @@ def search_stocks(query):
 def get_stock_quote(symbol, use_realtime=False):
     """Get current stock quote with basic information"""
     # Use a function to get data that we can cache
-    def fetch_quote(symbol, use_realtime=False):
-        # If realtime data is requested, don't use cache
-        global cache, cache_expiry
-        if use_realtime:
-            cache.pop(f"fetch_quote_{symbol}", None)
-            cache_expiry.pop(f"fetch_quote_{symbol}", None)
+    def fetch_quote(symbol):
         try:
             ticker = yf.Ticker(symbol)
             info = ticker.info
@@ -207,6 +202,8 @@ def get_stock_quote(symbol, use_realtime=False):
             print(f"Error getting quote for {symbol}: {e}")
             return None
     
+    if use_realtime:
+        return fetch_quote(symbol)
     return get_from_cache_or_api(fetch_quote, symbol)
 
 def get_company_name(symbol, overview_data=None):

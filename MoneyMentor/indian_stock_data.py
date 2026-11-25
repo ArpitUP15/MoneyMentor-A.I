@@ -203,6 +203,10 @@ def get_indian_stock_quote(symbol, use_realtime=False):
             if not info or len(info) < 2:
                 print(f"No valid info for {symbol}")
                 return None
+
+            hist = pd.DataFrame()
+            current = None
+            prev_close = None
             
             # Get live price data for real-time requests
             if use_realtime:
@@ -232,6 +236,15 @@ def get_indian_stock_quote(symbol, use_realtime=False):
                     return None
                 current = hist.iloc[-1]
                 prev_close = info.get('previousClose', float(hist.iloc[-2]['Close']) if len(hist) > 1 else float(current['Close']))
+
+            if current is None:
+                print(f"No current price data for {symbol}")
+                return None
+
+            if prev_close is None:
+                prev_close = float(current['Close'])
+            else:
+                prev_close = float(prev_close)
             
             # Calculate price change using the most current data
             price = float(current['Close'])
@@ -239,7 +252,7 @@ def get_indian_stock_quote(symbol, use_realtime=False):
             price_change_percent = (price / prev_close - 1) * 100 if prev_close > 0 else 0
             
             # For real-time quotes, also include last trade time
-            last_trade_time = pd.Timestamp.now() if use_realtime else current.name
+            last_trade_time = pd.Timestamp.now() if use_realtime else pd.Timestamp(str(current.name))
             
             # Get market cap
             market_cap = info.get('marketCap', 0)

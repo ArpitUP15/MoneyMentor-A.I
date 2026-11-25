@@ -11,14 +11,19 @@ Full-Stack Financial Analytics & Data Dashboard
 
 ## Installation
 
-1. Install dependencies:
+1. From the repository root, enter the application directory:
 ```
-pip install -r dependencies.txt
+cd MoneyMentor
 ```
 
-2. Run the application:
+2. Install dependencies:
 ```
-streamlit run app.py
+python -m pip install -r requirements.txt
+```
+
+3. Run the application:
+```
+python -m streamlit run app.py
 ```
 
 ## Usage

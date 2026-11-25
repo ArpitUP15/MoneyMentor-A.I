@@ -357,7 +357,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                     )
                     
                     # Display the chart
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
                 else:
                     st.error(f"No {st.session_state.interval} data available for {st.session_state.selected_stock}")
             
@@ -396,7 +396,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                     elif hasattr(rsi, 'item'):
                         rsi_value = float(rsi.item())
                     else:
-                        rsi_value = float(rsi) if not pd.isna(rsi) else 50
+                        rsi_value = float(rsi) if isinstance(rsi, (int, float)) and not pd.isna(rsi) else 50
                     
                     # RSI gauge chart
                     fig = go.Figure(go.Indicator(
@@ -424,7 +424,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         margin=dict(l=20, r=20, t=30, b=20)
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
                     
                     if rsi_value < 30:
                         st.markdown("**Interpretation:** Potentially oversold")
@@ -471,7 +471,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         margin=dict(l=20, r=20, t=30, b=20)
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
                     
                     # MACD interpretation
                     if macd.iloc[-1] > signal.iloc[-1] and macd.iloc[-2] <= signal.iloc[-2]:
@@ -487,12 +487,14 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                     st.subheader("Volatility")
                     
                     # Volatility gauge
-                    if hasattr(volatility, 'iloc') and not volatility.empty and not pd.isna(volatility.iloc[-1]):
+                    if isinstance(volatility, pd.Series) and not volatility.empty and not pd.isna(volatility.iloc[-1]):
                         volatility_pct = float(volatility.iloc[-1]) * 100
                     elif hasattr(volatility, 'item'):
                         volatility_pct = float(volatility.item()) * 100
+                    elif pd.api.types.is_scalar(volatility):
+                        volatility_pct = float(volatility) * 100 if pd.notna(volatility) else 0
                     else:
-                        volatility_pct = float(volatility) * 100 if not pd.isna(volatility) else 0
+                        volatility_pct = 0
                     
                     fig = go.Figure(go.Indicator(
                         mode="gauge+number",
@@ -520,7 +522,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                         margin=dict(l=20, r=20, t=30, b=20)
                     )
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
                     
                     # Volatility interpretation
                     if volatility_pct < 1:
@@ -632,7 +634,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                             margin=dict(l=20, r=20, t=50, b=20)
                         )
                         
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width="stretch")
                         
                         # Sentiment breakdown
                         st.markdown("### Recent News Sentiment")
@@ -689,7 +691,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                             margin=dict(l=20, r=20, t=50, b=20)
                         )
                         
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width="stretch")
                         
                         # Show prediction details
                         st.markdown("### Price Target Range (7 Days)")
@@ -766,7 +768,7 @@ elif st.session_state.selected_stock:  # Dashboard view with selected stock
                             margin=dict(l=20, r=20, t=50, b=20)
                         )
                         
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width="stretch")
                     
                     with explain_col:
                         st.markdown("### Signal Explanation")
